@@ -17,6 +17,16 @@ class Settings(BaseSettings):
     llm_base_url: str = "https://integrate.api.nvidia.com/v1"
     llm_chat_model: str = "openai/gpt-oss-120b"
 
+    # NVIDIA Reranking settings
+    nvidia_api_key: str = ""
+    rerank_model: str = "nvidia/llama-nemotron-rerank-1b-v2"
+    rerank_top_k: int = 5
+    rerank_relevance_threshold: float = -4.0  # As discussed, keep it low/un-strict
+
+    # Grader/Self-Correction settings
+    grader_chat_model: str = "openai/gpt-oss-20"  # Fast model for self-reflection
+    max_search_attempts: int = 3
+
     # OpenAI Embeddings
     openai_api_key: str = ""
     embedding_model: str = "text-embedding-3-large"

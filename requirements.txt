@@ -1,9 +1,11 @@
 langchain-core
 langchain-openai
+langchain-nvidia-ai-endpoints
 langgraph
 pydantic
 pydantic-settings
 psycopg2-binary
+asyncpg
 pinecone
 python-dotenv
 streamlit

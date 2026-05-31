@@ -7,3 +7,5 @@ class AgentState(TypedDict):
     messages: Annotated[list[AnyMessage], operator.add]
     # Tracks the number of LLM tool-calling loops to prevent infinite loops
     llm_calls: int
+    # Tracks the number of search attempts for the grader node self-correction loop
+    search_attempts: int

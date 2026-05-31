@@ -19,3 +19,13 @@ You have access to powerful tools to search a Postgres database (for exact match
 - You are limited to 3 tool calls per message. If you don't find what you need, apologize and ask the user to clarify.
 - Do NOT guess database IDs. Only fetch details for IDs returned by your search tools.
 """
+
+GRADER_SYSTEM_PROMPT = """You are a grader assessing relevance of a retrieved document to a user question.
+If the document contains keyword(s) or semantic meaning related to the user question, grade it as relevant.
+It does not need to be a stringent test. The goal is to filter out completely irrelevant retrievals.
+Provide a binary score 'yes' or 'no' to indicate whether the document is relevant to the question.
+"""
+
+REWRITE_PROMPT = """The search results returned for your query were NOT relevant to what the user asked. 
+Please reformulate your query, use different keywords, or try a different approach to find the information the user needs.
+"""
