@@ -73,12 +73,16 @@ def build_graph():
     # Rewrite goes back to the agent to try a new search
     graph_builder.add_edge("rewrite_node", "agent")
     
-    # Adding MemorySaver for persisting memory across turns in the same thread
-    memory = MemorySaver()
-    return graph_builder.compile(checkpointer=memory)
+    return graph_builder
 
-# Keep a single compiled graph instance with its memory in memory
-_compiled_graph = build_graph()
+def init_graph():
+    """Initializes the base graph without a checkpointer."""
+    # We remove global semantic cache as it interferes with the ReAct agent's reasoning loop,
+    # causing it to repeatedly output the same tool call from cache.
+    return build_graph()
+
+# Keep a single uncompiled graph builder in memory
+_graph_builder = init_graph()
 
 async def astream_agent(session_id: str, message: str):
     """
@@ -86,6 +90,26 @@ async def astream_agent(session_id: str, message: str):
     Yields dicts containing information about tool calls and messages.
     """
     from langchain_core.messages import HumanMessage
+    import redis.asyncio as redis_async
+    from langgraph.checkpoint.redis import AsyncRedisSaver
+    
+    settings = get_settings()
+    
+    # Create the redis connection inside the event loop
+    redis_conn = redis_async.Redis.from_url(settings.redis_url)
+    ttl_config = {
+        "default_ttl": 10,       # 10 minutes TTL
+        "refresh_on_read": True
+    }
+    
+    memory = AsyncRedisSaver(redis_client=redis_conn, ttl=ttl_config)
+    
+    try:
+        await memory.asetup()
+    except Exception as e:
+        print(f"AsyncRedisSaver setup warning: {e}")
+        
+    compiled_graph = _graph_builder.compile(checkpointer=memory)
     
     inputs = {
         "messages": [HumanMessage(content=message)], 
@@ -95,6 +119,6 @@ async def astream_agent(session_id: str, message: str):
     config = {"configurable": {"thread_id": session_id}}
     
     # Stream both node updates and individual messages
-    async for msg, metadata in _compiled_graph.astream(inputs, config=config, stream_mode="messages"):
+    async for msg, metadata in compiled_graph.astream(inputs, config=config, stream_mode="messages"):
         yield msg, metadata
 

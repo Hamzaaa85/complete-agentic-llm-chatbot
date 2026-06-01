@@ -2,12 +2,15 @@ langchain-core
 langchain-openai
 langchain-nvidia-ai-endpoints
 langgraph
+langgraph-checkpoint-redis
+langchain-redis
 pydantic
 pydantic-settings
 psycopg2-binary
 asyncpg
 pinecone
 python-dotenv
+redis
 streamlit
 asyncio
 fastapi

@@ -45,6 +45,9 @@ class Settings(BaseSettings):
     pinecone_host: str | None = None
     pinecone_namespace: str | None = None
 
+    # Redis Config
+    redis_url: str = "redis://localhost:6379"
+
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
